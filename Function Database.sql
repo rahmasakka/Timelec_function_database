@@ -75,7 +75,6 @@ CREATE PROCEDURE nb_second_par_jour (jour DATE)
 BEGIN 
 	SET @nb_total := calcul_nb_ligne_par_date(jour) ;
 	SELECT jour as Jour, 
-		   calcul_nb_ligne_par_date(jour) as nb_ligne_par_jour,
 		   @nb_total as taille_BD_par_jour,
 		   Diff_fin_deb(jour,@nb_total-1) as Diff_fin_deb_second, 
            SEC_TO_TIME(Diff_fin_deb(jour,@nb_total-1)) as Diff_fin_deb_heure,
