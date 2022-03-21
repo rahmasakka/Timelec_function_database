@@ -69,20 +69,20 @@ DELIMITER ;
 SELECT diff_fin_deb ('2021-11-25', 12);
 #########################################################################################################################################
 
-DROP PROCEDURE IF EXISTS nb_second_par_jour;
+DROP PROCEDURE IF EXISTS nb_heure_par_jour;
 DELIMITER $$
-CREATE PROCEDURE nb_second_par_jour (jour DATE)
+CREATE PROCEDURE nb_heure_par_jour (jour DATE)
 BEGIN 
 	SET @nb_total := calcul_nb_ligne_par_date(jour) ;
 	SELECT jour as Jour, 
 		   @nb_total as taille_BD_par_jour,
 		   Diff_fin_deb(jour,@nb_total-1) as Diff_fin_deb_second, 
-           	   SEC_TO_TIME(Diff_fin_deb(jour,@nb_total-1)) as Diff_fin_deb_heure,
+                   SEC_TO_TIME(Diff_fin_deb(jour,@nb_total-1)) as Diff_fin_deb_heure,
 		   Calcul_temps_boucle(jour,@nb_total-1) as Calcul_temps_boucle_second,
 		   SEC_TO_TIME(Calcul_temps_boucle(jour,@nb_total-1)) as Calcul_temps_boucle_heure;
 	END$$
 DELIMITER ;
 
 ########################################################### Appelation procedure ########################################################
-CALL nb_second_par_jour('2021-11-20')
+CALL nb_heure_par_jour('2021-11-25')
 #########################################################################################################################################
