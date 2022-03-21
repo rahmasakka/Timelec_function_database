@@ -16,7 +16,7 @@ select calcul_nb_ligne_par_date('2021-11-25');
 DROP FUNCTION IF EXISTS MA_start_time_par_ligne;
 DELIMITER $$
 CREATE FUNCTION MA_start_time_par_ligne(jour DATE, nb_jour INTEGER)
-RETURNS time
+RETURNS TIME
 BEGIN 
   DECLARE heure TIME;
 	SET heure = (SELECT MA_start_time FROM table_mechanical_assembly where MA_date = jour LIMIT nb_jour,1);
