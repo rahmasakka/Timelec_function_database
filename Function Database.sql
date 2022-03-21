@@ -1,62 +1,83 @@
 DROP FUNCTION IF EXISTS calcul_nb_ligne_par_date;
 DELIMITER $$
-CREATE FUNCTION calcul_nb_ligne_par_date(datee DATE)
+CREATE FUNCTION calcul_nb_ligne_par_date(jour DATE)
 RETURNS INTEGER
 BEGIN 
   DECLARE quantity INTEGER;
-	SET quantity = (SELECT count(*) FROM table_mechanical_assembly where MA_date=datee);
+	SET quantity = (SELECT count(*) FROM table_mechanical_assembly where MA_date = jour);
   RETURN quantity;
 END$$
 DELIMITER ;
 
 ########################################################### Appelation fonction #########################################################
-select calcul_nb_ligne_par_date('2021-11-20');
+select calcul_nb_ligne_par_date('2021-11-25');
 #########################################################################################################################################
 
-DROP FUNCTION IF EXISTS nb_second_par_ligne;
+DROP FUNCTION IF EXISTS MA_start_time_par_ligne;
 DELIMITER $$
-CREATE FUNCTION nb_second_par_ligne(datee DATE, i int)
+CREATE FUNCTION MA_start_time_par_ligne(jour DATE, nb_jour INTEGER)
 RETURNS time
 BEGIN 
-  DECLARE time1 time;
-	SET time1 =  TIME_FORMAT((SELECT MA_start_time FROM table_mechanical_assembly where MA_date = datee LIMIT i,1), "%H:%i:%s");
-  RETURN time1;
+  DECLARE heure TIME;
+	SET heure = (SELECT MA_start_time FROM table_mechanical_assembly where MA_date = jour LIMIT nb_jour,1);
+  RETURN heure;
 END$$
 DELIMITER ;
 
 ########################################################### Appelation fonction #########################################################
-SELECT nb_second_par_ligne('2021-11-20', 0); 
-# la compare avec :
-SELECT MA_start_time FROM table_mechanical_assembly where MA_date = '2021-11-20' LIMIT 0,1;
+SELECT MA_start_time_par_ligne('2021-11-20', 12); 
 #########################################################################################################################################
 
-DROP FUNCTION IF EXISTS Calcul_temps;
+DROP FUNCTION IF EXISTS Calcul_temps_boucle;
 DELIMITER $$
-CREATE FUNCTION Calcul_temps(datee date, n integer)
-RETURNS integer
+CREATE FUNCTION Calcul_temps_boucle(jour DATE, taille INTEGER)
+RETURNS INTEGER
 BEGIN 
-	DECLARE i integer default 0;   
-    DECLARE x time;
-    DECLARE y time;
-    DECLARE w integer default 0;
-    #DECLARE z time default '00:00:00';    
-	WHILE i < n-1 DO
-    	set x = nb_second_par_ligne(datee,i);
-		set y = nb_second_par_ligne(datee,i+1);
-		set w = w + TIME_TO_SEC(y) - TIME_TO_SEC(x); 
-        set i = i + 1;
+	DECLARE i, somme integer default 0;   
+    DECLARE difference integer;
+    DECLARE start_time_i, start_time_j time;
+	WHILE i < taille-1 DO
+    	SET start_time_i = MA_start_time_par_ligne(jour , i);
+		SET start_time_j = MA_start_time_par_ligne(jour , i + 1);
+        SET difference = TIME_TO_SEC(start_time_j) - TIME_TO_SEC(start_time_i);
+		SET somme = somme + difference; 
+        SET i = i + 1;
 	END WHILE;
-    return w;    
+    RETURN somme;    
 END$$
 DELIMITER ;
 
 ########################################################### Appelation fonction #########################################################
-select Calcul_temps('2021-11-20', 1);
-SET @nb_total := calcul_nb_ligne_par_date('2021-11-20') ;
-select(@nb_total);
-select Calcul_temps('2021-11-20', @nb_total);
+select Calcul_temps_boucle('2021-11-20', 2);
 #########################################################################################################################################
 
-set @debut1 = (SELECT MA_start_time as debut1 FROM table_mechanical_assembly where MA_date = '2021-11-20' LIMIT 1,1);
-set @fin1 = (SELECT MA_start_time as fin1 FROM table_mechanical_assembly where MA_date = '2021-11-20' LIMIT 530, 1);
-SELECT TIME_TO_SEC(TIMEDIFF(@fin1, @debut1));
+DROP FUNCTION IF EXISTS  diff_fin_deb;
+DELIMITER $$
+CREATE FUNCTION  diff_fin_deb(jour DATE, nb_total INTEGER)
+RETURNS INTEGER
+BEGIN 
+	SET @debut = (SELECT MA_start_time as debut FROM table_mechanical_assembly where MA_date = jour LIMIT 0,1);
+    SET @fin   = (SELECT MA_start_time as fin FROM table_mechanical_assembly where MA_date = jour LIMIT nb_total, 1);
+	RETURN TIME_TO_SEC(TIMEDIFF(@fin, @debut));
+END$$
+DELIMITER ;
+
+########################################################### Appelation fonction #########################################################
+SELECT diff_fin_deb ('2021-11-20', 200);
+#########################################################################################################################################
+
+DROP PROCEDURE IF EXISTS nb_second_par_jour;
+DELIMITER $$
+CREATE PROCEDURE nb_second_par_jour (jour DATE)
+BEGIN 
+	SET @nb_total := calcul_nb_ligne_par_date(jour) ;
+	SELECT jour as Jour, 
+		   @nb_total as taille_BD,
+		   Diff_fin_deb (jour, @nb_total-1), 
+		   Calcul_temps_boucle(jour, @nb_total) ;
+END$$
+DELIMITER ;
+
+########################################################### Appelation procedure ########################################################
+CALL nb_second_par_jour('2021-11-25')
+#########################################################################################################################################
