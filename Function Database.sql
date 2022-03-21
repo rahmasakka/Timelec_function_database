@@ -77,7 +77,7 @@ BEGIN
 	SELECT jour as Jour, 
 		   @nb_total as taille_BD_par_jour,
 		   Diff_fin_deb(jour,@nb_total-1) as Diff_fin_deb_second, 
-           SEC_TO_TIME(Diff_fin_deb(jour,@nb_total-1)) as Diff_fin_deb_heure,
+           	   SEC_TO_TIME(Diff_fin_deb(jour,@nb_total-1)) as Diff_fin_deb_heure,
 		   Calcul_temps_boucle(jour,@nb_total-1) as Calcul_temps_boucle_second,
 		   SEC_TO_TIME(Calcul_temps_boucle(jour,@nb_total-1)) as Calcul_temps_boucle_heure;
 	END$$
