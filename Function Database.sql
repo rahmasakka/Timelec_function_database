@@ -69,9 +69,9 @@ DELIMITER ;
 SELECT diff_fin_deb ('2021-11-25', 12);
 #########################################################################################################################################
 
-DROP PROCEDURE IF EXISTS nb_second_par_jour;
+DROP PROCEDURE IF EXISTS nb_heure_par_jour;
 DELIMITER $$
-CREATE PROCEDURE nb_second_par_jour (jour DATE)
+CREATE PROCEDURE nb_heure_par_jour (jour DATE)
 BEGIN 
 	SET @nb_total := calcul_nb_ligne_par_date(jour) ;
 	SELECT jour as Jour, 
@@ -84,5 +84,5 @@ BEGIN
 DELIMITER ;
 
 ########################################################### Appelation procedure ########################################################
-CALL nb_second_par_jour('2021-11-20')
+CALL nb_heure_par_jour('2021-11-25')
 #########################################################################################################################################
