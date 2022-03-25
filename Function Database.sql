@@ -16,7 +16,7 @@ select calcul_nb_ligne_par_date('2021-11-25');
 DROP FUNCTION IF EXISTS MA_start_time_par_ligne;
 DELIMITER $$
 CREATE FUNCTION MA_start_time_par_ligne(jour DATE, nb_jour INTEGER)
-RETURNS time
+RETURNS TIME
 BEGIN 
   DECLARE heure TIME;
 	SET heure = (SELECT MA_start_time FROM table_mechanical_assembly where MA_date = jour LIMIT nb_jour,1);
@@ -77,7 +77,7 @@ BEGIN
 	SELECT jour as Jour, 
 		   @nb_total as taille_BD_par_jour,
 		   Diff_fin_deb(jour,@nb_total-1) as Diff_fin_deb_second, 
-           SEC_TO_TIME(Diff_fin_deb(jour,@nb_total-1)) as Diff_fin_deb_heure,
+                   SEC_TO_TIME(Diff_fin_deb(jour,@nb_total-1)) as Diff_fin_deb_heure,
 		   Calcul_temps_boucle(jour,@nb_total-1) as Calcul_temps_boucle_second,
 		   SEC_TO_TIME(Calcul_temps_boucle(jour,@nb_total-1)) as Calcul_temps_boucle_heure;
 	END$$
@@ -85,4 +85,8 @@ DELIMITER ;
 
 ########################################################### Appelation procedure ########################################################
 CALL nb_heure_par_jour('2021-11-25')
+<<<<<<< HEAD
 #########################################################################################################################################
+=======
+#########################################################################################################################################
+>>>>>>> 4415f848ac6f25f51a234249aa92f0e958fd631f
